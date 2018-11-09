@@ -10,6 +10,8 @@
   "author": "Edwin Duenez",
   "license": "ISC",
   "dependencies": {
+    "body-parser": "^1.18.3",
+    "bootstrap": "^3.3.7",
     "ejs": "^2.6.1",
     "express": "^4.16.4"
   }

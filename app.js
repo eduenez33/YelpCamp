@@ -1,7 +1,13 @@
 var express = require("express");
 var app = express();
 const port = 3000;
+var bodyParser = require("body-parser");
 
+app.use(
+  bodyParser.urlencoded({
+    extended: true
+  })
+);
 app.set("view engine", "ejs");
 
 app.get("/", function(req, res) {
@@ -30,6 +36,6 @@ app.get("/campgrounds", function(req, res) {
   res.render("campgrounds", { campgrounds: campgrounds });
 });
 
-app.listen(port, function() {
-  console.log("YelpCamp server has started!");
-});
+app.post("/campgrounds", function(req, res) {});
+
+app.listen(port);
