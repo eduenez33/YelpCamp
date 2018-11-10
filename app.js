@@ -1,7 +1,37 @@
-var express = require("express");
-var app = express();
+var express = require("express"),
+  app = express(),
+  bodyParser = require("body-parser"),
+  mongoose = require("mongoose");
 const port = 3000;
-var bodyParser = require("body-parser");
+
+mongoose.connect(
+  "mongodb://localhost/yelp_camp",
+  { useNewUrlParser: false }
+);
+
+// SCHEMA SETUP
+var campgroundSchema = new mongoose.Schema({
+  name: String,
+  image: String
+});
+
+var Campground = mongoose.model("Campground", campgroundSchema);
+
+// Campground.create(
+//   {
+//     name: "Navajo Hill",
+//     image:
+//       "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=d9df10d159cc11074d9a7996e8aca442&auto=format&fit=crop&w=1500&q=80"
+//   },
+//   function(err, campground) {
+//     if (err) {
+//       console.log("Error!");
+//     } else {
+//       console.log("Newly Created Campground: ");
+//       console.log(campground);
+//     }
+//   }
+// );
 
 app.use(
   bodyParser.urlencoded({
@@ -10,60 +40,19 @@ app.use(
 );
 app.set("view engine", "ejs");
 
-var campgrounds = [
-  {
-    name: "Salmon Creek",
-    image:
-      "https://images.unsplash.com/photo-1526491109672-74740652b963?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=343c64df1b43f50769656d03c2b9f523&auto=format&fit=crop&w=1500&q=80"
-  },
-  {
-    name: "Navajo Hill",
-    image:
-      "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=d9df10d159cc11074d9a7996e8aca442&auto=format&fit=crop&w=1500&q=80"
-  },
-  {
-    name: "White Water Rapids",
-    image:
-      "https://images.unsplash.com/photo-1475257873405-64d6dd9764c8?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=5b612709ccb927b6891a9fb4f92245b4&auto=format&fit=crop&w=2299&q=80"
-  },
-  {
-    name: "Salmon Creek",
-    image:
-      "https://images.unsplash.com/photo-1526491109672-74740652b963?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=343c64df1b43f50769656d03c2b9f523&auto=format&fit=crop&w=1500&q=80"
-  },
-  {
-    name: "Navajo Hill",
-    image:
-      "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=d9df10d159cc11074d9a7996e8aca442&auto=format&fit=crop&w=1500&q=80"
-  },
-  {
-    name: "White Water Rapids",
-    image:
-      "https://images.unsplash.com/photo-1475257873405-64d6dd9764c8?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=5b612709ccb927b6891a9fb4f92245b4&auto=format&fit=crop&w=2299&q=80"
-  },
-  {
-    name: "Salmon Creek",
-    image:
-      "https://images.unsplash.com/photo-1526491109672-74740652b963?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=343c64df1b43f50769656d03c2b9f523&auto=format&fit=crop&w=1500&q=80"
-  },
-  {
-    name: "Navajo Hill",
-    image:
-      "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=d9df10d159cc11074d9a7996e8aca442&auto=format&fit=crop&w=1500&q=80"
-  },
-  {
-    name: "White Water Rapids",
-    image:
-      "https://images.unsplash.com/photo-1475257873405-64d6dd9764c8?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=5b612709ccb927b6891a9fb4f92245b4&auto=format&fit=crop&w=2299&q=80"
-  }
-];
-
 app.get("/", function(req, res) {
   res.render("landing");
 });
 
 app.get("/campgrounds", function(req, res) {
-  res.render("campgrounds", { campgrounds: campgrounds });
+  // GET ALL CAMPGROUNDS FROM DB
+  Campground.find({}, function(err, allCampgrounds) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.render("campgrounds", { campgrounds: allCampgrounds });
+    }
+  });
 });
 
 app.get("/campgrounds/new", function(req, res) {
@@ -77,10 +66,14 @@ app.post("/campgrounds", function(req, res) {
     name: name,
     image: image
   };
-
-  campgrounds.push(newCampground);
-
-  res.redirect("/campgrounds");
+  // Create new Campground and save to DB
+  Campground.create(newCampground, function(err, newlyCreated) {
+    if (err) {
+      console.log(err);
+    } else {
+      res.redirect("/campgrounds");
+    }
+  });
 });
 
 app.listen(port);
