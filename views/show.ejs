@@ -1,0 +1,13 @@
+<% include partials/header %>
+
+<h1><%= campground.name %></h1>
+
+<img
+  src="<%= campground.image %>"
+  alt="A view of <%= campground.name %>"
+  style="height: 400px;"
+/>
+
+<p><%= campground.description %></p>
+
+<% include partials/footer %>
